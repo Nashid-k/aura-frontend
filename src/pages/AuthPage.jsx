@@ -19,7 +19,7 @@ export function AuthPage() {
   const { login, register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo = location.state?.from?.pathname || '/today';
+  const redirectTo = location.state?.from?.pathname || '/app/today';
 
   async function handleSubmit(e) {
     if (e) e.preventDefault();
@@ -43,10 +43,10 @@ export function AuthPage() {
     <div className="flex min-h-screen bg-background text-foreground overflow-hidden">
       
       {/* Left Promotional / Ambient Pane (Hidden on Mobile) */}
-      <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-center p-16 bg-gradient-to-br from-slate-950 to-background border-r border-border/10">
+      <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-center p-16 bg-gradient-to-br from-background to-secondary/30 border-r border-border/50">
         {/* Background Sigil elements */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 pointer-events-none w-[120%]">
-          <LivingSigil params={{ lines: 'angular', complexity: 12, symmetry: 8, auraColor: 'oklch(0.6 0.12 210)' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] dark:opacity-[0.07] pointer-events-none w-[120%]">
+          <LivingSigil params={{ lines: 'angular', complexity: 12, symmetry: 8, auraColor: 'hsl(var(--primary))' }} />
         </div>
 
         <div className="relative z-10 max-w-xl mx-auto">
@@ -59,11 +59,11 @@ export function AuthPage() {
               <div className="p-2 rounded-xl bg-primary/10 border border-primary/20 group-hover:scale-110 transition-transform">
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              <span className="text-3xl font-black tracking-tighter">Nashid</span>
+              <span className="text-3xl font-black tracking-tighter">Aura</span>
             </Link>
 
             <h1 className="text-6xl font-black leading-tight mb-6 tracking-tighter">
-              Begin Your <br/><span className="text-primary">Metamorphosis.</span>
+              Begin Your <br/><span className="text-primary italic">Metamorphosis.</span>
             </h1>
             <p className="text-xl text-muted-foreground font-medium mb-12 leading-relaxed">
               Step into a space where your daily actions become living art. Track with intention, grow with intelligence.
@@ -78,7 +78,7 @@ export function AuthPage() {
               <FeatureItem 
                 icon={<Shield className="text-primary w-6 h-6" />}
                 title="Sanctuary Mode"
-                desc="Privacy-first, local-ready architecture. Your growth is your own."
+                desc="Privacy-first architecture. Your growth remains entirely yours."
               />
             </div>
           </motion.div>
@@ -86,7 +86,7 @@ export function AuthPage() {
       </div>
 
       {/* Right Form Pane */}
-      <div className="flex-1 lg:max-w-[600px] flex flex-col justify-center items-center p-8 sm:p-16 relative bg-background/50 backdrop-blur-3xl">
+      <div className="flex-1 lg:max-w-[640px] flex flex-col justify-center items-center p-8 sm:p-16 relative bg-background">
         {/* Ambient glow */}
         <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
         
@@ -103,7 +103,7 @@ export function AuthPage() {
                 <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 mb-4">
                   <Sparkles className="w-10 h-10 text-primary" />
                 </div>
-                <h2 className="text-3xl font-black tracking-tighter">Nashid</h2>
+                <h2 className="text-3xl font-black tracking-tighter">Aura</h2>
               </div>
 
               <div className="mb-10">
@@ -111,17 +111,25 @@ export function AuthPage() {
                   {mode === 'login' ? 'Welcome back' : 'Create account'}
                 </h3>
                 <p className="text-muted-foreground font-medium">
-                  {mode === 'login' ? 'Enter your details to access your sanctuary.' : 'Join the studio and start your journey.'}
+                  {mode === 'login' ? 'Access your behavioral sanctuary.' : 'Join the studio and start your journey.'}
                 </p>
               </div>
 
-              {/* Custom Tabs */}
-              <div className="flex p-1 bg-muted/50 rounded-xl mb-8 border border-border/10">
+              {/* Custom Tabs - iOS Segmented Control style */}
+              <div className="flex p-1.5 bg-secondary/50 rounded-2xl mb-8 border border-border/50 relative overflow-hidden">
+                <motion.div 
+                  className="absolute inset-y-1.5 rounded-xl bg-background shadow-sm border border-border/50"
+                  animate={{ 
+                    x: mode === 'login' ? 0 : '100%',
+                    width: 'calc(50% - 3px)'
+                  }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
                 <button
                   onClick={() => setMode('login')}
                   className={cn(
-                    "flex-1 py-2.5 text-sm font-bold rounded-lg transition-all",
-                    mode === 'login' ? "bg-card text-primary shadow-sm border border-border/50" : "text-muted-foreground hover:text-foreground"
+                    "flex-1 py-2.5 text-sm font-bold rounded-xl transition-all relative z-10",
+                    mode === 'login' ? "text-primary" : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   Login
@@ -129,8 +137,8 @@ export function AuthPage() {
                 <button
                   onClick={() => setMode('register')}
                   className={cn(
-                    "flex-1 py-2.5 text-sm font-bold rounded-lg transition-all",
-                    mode === 'register' ? "bg-card text-primary shadow-sm border border-border/50" : "text-muted-foreground hover:text-foreground"
+                    "flex-1 py-2.5 text-sm font-bold rounded-xl transition-all relative z-10",
+                    mode === 'register' ? "text-primary" : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   Register
@@ -143,19 +151,18 @@ export function AuthPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 {mode === 'register' && (
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Display Name</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Identity Name</label>
                     <div className="relative group">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
                       <input
                         required
                         type="text"
                         name="name"
-                        autocomplete="name"
                         placeholder="What should we call you?"
-                        className="w-full pl-12 pr-4 py-4 bg-card/50 border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50"
+                        className="w-full pl-12 pr-4 py-4 bg-secondary/30 border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/50 transition-all placeholder:text-muted-foreground/30 font-medium"
                         value={registerForm.name}
                         onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
                       />
@@ -164,16 +171,15 @@ export function AuthPage() {
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
                   <div className="relative group">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
                     <input
                       required
                       type="email"
                       name="email"
-                      autocomplete="email"
                       placeholder="name@example.com"
-                      className="w-full pl-12 pr-4 py-4 bg-card/50 border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50"
+                      className="w-full pl-12 pr-4 py-4 bg-secondary/30 border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/50 transition-all placeholder:text-muted-foreground/30 font-medium"
                       value={mode === 'login' ? loginForm.email : registerForm.email}
                       onChange={(e) => mode === 'login'
                         ? setLoginForm({ ...loginForm, email: e.target.value })
@@ -183,16 +189,15 @@ export function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Password</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Key Phrase</label>
                   <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
                     <input
                       required
                       type="password"
                       name="password"
-                      autocomplete={mode === 'login' ? 'current-password' : 'new-password'}
                       placeholder="••••••••"
-                      className="w-full pl-12 pr-4 py-4 bg-card/50 border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/50"
+                      className="w-full pl-12 pr-4 py-4 bg-secondary/30 border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/50 transition-all placeholder:text-muted-foreground/30 font-medium"
                       value={mode === 'login' ? loginForm.password : registerForm.password}
                       onChange={(e) => mode === 'login'
                         ? setLoginForm({ ...loginForm, password: e.target.value })
@@ -202,21 +207,17 @@ export function AuthPage() {
                 </div>
 
                 <Button
-                  disabled={loading}
-                  className="w-full py-7 text-lg font-black tracking-tight mt-4 rounded-2xl shadow-xl shadow-primary/20"
+                  loading={loading}
+                  className="w-full h-16 text-lg font-black tracking-tight mt-4 rounded-2xl shadow-xl shadow-primary/10"
                 >
-                  {loading ? (
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      {mode === 'login' ? 'Enter Sanctuary' : 'Begin Journey'}
-                      <ArrowRight className="w-5 h-5" />
-                    </span>
-                  )}
+                  <span className="flex items-center gap-2">
+                    {mode === 'login' ? 'Enter Sanctuary' : 'Begin Journey'}
+                    <ArrowRight className="w-5 h-5" />
+                  </span>
                 </Button>
 
-                <p className="text-xs text-muted-foreground text-center mt-6 font-medium leading-relaxed">
-                  By continuing, you agree to the Nashid <Link to="#" className="text-primary hover:underline font-bold">Terms of Growth</Link> and <Link to="#" className="text-primary hover:underline font-bold">Privacy Rituals</Link>.
+                <p className="text-[10px] text-muted-foreground text-center mt-6 font-bold uppercase tracking-widest leading-relaxed">
+                  By continuing, you agree to Aura's <br/> <Link to="#" className="text-primary hover:underline">Terms of Growth</Link> and <Link to="#" className="text-primary hover:underline">Privacy Rituals</Link>.
                 </p>
               </form>
             </motion.div>
@@ -230,7 +231,7 @@ export function AuthPage() {
 function FeatureItem({ icon, title, desc }) {
   return (
     <div className="flex gap-6 items-start group">
-      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:bg-primary/10 group-hover:border-primary/20 transition-all duration-500">
+      <div className="p-4 rounded-2xl bg-secondary/50 border border-border/50 group-hover:bg-primary/10 group-hover:border-primary/20 transition-all duration-500 shadow-sm">
         {icon}
       </div>
       <div>
@@ -240,3 +241,4 @@ function FeatureItem({ icon, title, desc }) {
     </div>
   );
 }
+

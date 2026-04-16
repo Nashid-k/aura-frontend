@@ -14,7 +14,8 @@ import {
   Shield,
   MousePointer2,
   Trophy,
-  Waves
+  Waves,
+  Loader2
 } from 'lucide-react';
 import { LivingSigil } from '@/entities/sigil/ui/LivingSigil';
 import { Button } from '@/shared/ui/core/Button';
@@ -43,9 +44,9 @@ export function LandingPage() {
       setIsParsing(true);
       const habits = [];
       const lower = demoText.toLowerCase();
-      if (lower.includes('read')) habits.push({ name: 'Reading', color: 'oklch(0.6 0.12 210)', icon: <PenTool className="w-4 h-4" /> });
-      if (lower.includes('run') || lower.includes('gym') || lower.includes('workout')) habits.push({ name: 'Fitness', color: 'oklch(0.6 0.2 25)', icon: <Zap className="w-4 h-4" /> });
-      if (lower.includes('meditate') || lower.includes('breath')) habits.push({ name: 'Mindfulness', color: 'oklch(0.65 0.18 150)', icon: <Brain className="w-4 h-4" /> });
+      if (lower.includes('read')) habits.push({ name: 'Reading', color: 'hsl(var(--primary))', icon: <PenTool className="w-4 h-4" /> });
+      if (lower.includes('run') || lower.includes('gym') || lower.includes('workout')) habits.push({ name: 'Fitness', color: 'hsl(var(--destructive))', icon: <Zap className="w-4 h-4" /> });
+      if (lower.includes('meditate') || lower.includes('breath')) habits.push({ name: 'Mindfulness', color: 'hsl(var(--success))', icon: <Brain className="w-4 h-4" /> });
       
       setTimeout(() => {
         setExtractedHabits(habits);
@@ -57,29 +58,29 @@ export function LandingPage() {
   }, [demoText]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-foreground overflow-x-hidden selection:bg-primary/30">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-primary/30">
       {/* Background Orchestration */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(14,165,233,0.15),transparent_70%)]" />
-        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_80%,rgba(20,184,166,0.1),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC42NSIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIvPjwvc3ZnPg==')] opacity-[0.08] mix-blend-overlay pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.15),transparent_70%)]" />
+        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_80%,hsl(var(--success)/0.1),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC42NSIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIvPjwvc3ZnPg==')] opacity-[0.03] dark:opacity-[0.08] mix-blend-overlay pointer-events-none" />
       </div>
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-6 md:p-8">
-        <div className="max-w-7xl mx-auto flex justify-between items-center bg-card/40 backdrop-blur-xl border border-border/10 rounded-2xl px-6 py-3 shadow-2xl shadow-black/20">
+        <div className="max-w-7xl mx-auto flex justify-between items-center glass-panel rounded-2xl px-6 py-3 shadow-2xl shadow-black/5 dark:shadow-black/20">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="p-1.5 rounded-lg bg-primary/10 border border-primary/20 group-hover:scale-110 transition-transform">
               <Sparkles className="text-primary w-6 h-6" />
             </div>
-            <span className="text-2xl font-black tracking-tighter">Nashid</span>
+            <span className="text-2xl font-black tracking-tighter">Aura</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link to="/auth" className="text-sm font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors px-4">
               Sign In
             </Link>
-            <Button component={Link} to="/auth" className="rounded-full px-6 shadow-lg shadow-primary/20">
-              Join Sanctuary
+            <Button asChild className="rounded-full px-6 shadow-lg shadow-primary/20">
+              <Link to="/auth">Join Sanctuary</Link>
             </Button>
           </div>
         </div>
@@ -104,7 +105,7 @@ export function LandingPage() {
                   <span className="text-primary italic">Is A Living Sigil.</span>
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                  Nashid isn't just a tracker. It's a behavioral mirror. Our AI synthesizes your journals into dynamic geometric art that grows, shifts, and evolves as you do.
+                  Aura isn't just a tracker. It's a behavioral mirror. Our AI synthesizes your journals into dynamic geometric art that grows, shifts, and evolves as you do.
                 </p>
               </motion.div>
 
@@ -116,17 +117,18 @@ export function LandingPage() {
               >
                 <Button 
                   size="lg" 
-                  component={Link} 
-                  to="/auth" 
+                  asChild
                   className="h-16 px-10 rounded-2xl text-lg font-black tracking-tight shadow-2xl shadow-primary/20 group"
                 >
-                  Enter the Sanctuary
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <Link to="/auth">
+                    Enter the Sanctuary
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 </Button>
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="h-16 px-10 rounded-2xl text-lg font-black tracking-tight border-border/50 hover:bg-white/5"
+                  className="h-16 px-10 rounded-2xl text-lg font-black tracking-tight border-border/50 hover:bg-secondary/50"
                   onClick={() => document.getElementById('demo-section').scrollIntoView({ behavior: 'smooth' })}
                 >
                   Witness the Growth
@@ -152,7 +154,7 @@ export function LandingPage() {
               <motion.div
                 animate={{ y: [0, -20, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute top-10 right-0 p-6 rounded-2xl bg-card/80 backdrop-blur-2xl border border-border/20 shadow-2xl shadow-black/40 space-y-2 group cursor-default"
+                className="absolute top-10 right-0 p-6 rounded-2xl glass-panel shadow-2xl space-y-2 group cursor-default"
               >
                 <div className="flex items-center gap-2 text-primary">
                   <Waves size={16} />
@@ -167,9 +169,9 @@ export function LandingPage() {
               <motion.div
                 animate={{ y: [0, 20, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                className="absolute bottom-10 left-0 p-5 rounded-2xl bg-card/80 backdrop-blur-2xl border border-border/20 shadow-2xl shadow-black/40 flex items-center gap-4"
+                className="absolute bottom-10 left-0 p-5 rounded-2xl glass-panel shadow-2xl flex items-center gap-4"
               >
-                <div className="p-2 rounded-xl bg-teal-500/10 text-teal-500">
+                <div className="p-2 rounded-xl bg-success/10 text-success">
                   <Trophy size={20} />
                 </div>
                 <div>
@@ -203,10 +205,10 @@ export function LandingPage() {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto"
           >
-            <Card className="overflow-hidden border-primary/20 bg-card/60 backdrop-blur-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)]">
+            <Card className="overflow-hidden border-primary/20 bg-card/60 backdrop-blur-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)]">
               <div className="p-10 space-y-8">
                 <textarea
-                  placeholder="How was your day? Nashid's NLP will detect your progress..."
+                  placeholder="How was your day? Aura's NLP will detect your progress..."
                   className="w-full h-32 bg-transparent border-none focus:ring-0 text-3xl font-medium placeholder:text-muted-foreground/20 resize-none outline-none"
                   value={demoText}
                   onChange={(e) => setDemoText(e.target.value)}
@@ -241,7 +243,7 @@ export function LandingPage() {
                   </AnimatePresence>
                 </div>
               </div>
-              <div className="bg-black/40 px-10 py-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 border-t border-border/10">
+              <div className="bg-muted/30 px-10 py-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 border-t border-border/10">
                 <span>Natural Language Processing Engine v4.0</span>
                 <span className="flex items-center gap-2">Maya Core <Shield size={12} /></span>
               </div>
@@ -254,21 +256,21 @@ export function LandingPage() {
       <section className="py-40 container mx-auto px-6">
         <div className="grid md:grid-cols-3 gap-8">
           <FeatureCard 
-            icon={<Brain className="w-8 h-8 text-sky-400" />}
+            icon={<Brain className="w-8 h-8 text-primary" />}
             title="Identity Archetypes"
             description="Our AI maps your habits to 10 psychological archetypes. Are you 'The Serene Architect' or 'The Grindmaster'? Your sigil reveals the truth."
             delay={0.1}
           />
           <FeatureCard 
-            icon={<Zap className="w-8 h-8 text-orange-400" />}
+            icon={<Zap className="w-8 h-8 text-destructive" />}
             title="Habit Mutations"
-            description="Nashid detects when you miss habits together and suggests 'Fusions' or 'Stacks' to fix your momentum before it breaks."
+            description="Aura detects when you miss habits together and suggests 'Fusions' or 'Stacks' to fix your momentum before it breaks."
             delay={0.2}
           />
           <FeatureCard 
-            icon={<Palette className="w-8 h-8 text-teal-400" />}
+            icon={<Palette className="w-8 h-8 text-success" />}
             title="Aesthetic Casting"
-            description="Colors aren't random. Nashid generates a unique color palette for each habit based on its semantic meaning and your emotional state."
+            description="Colors aren't random. Aura generates a unique color palette for each habit based on its semantic meaning and your emotional state."
             delay={0.3}
           />
         </div>
@@ -279,10 +281,10 @@ export function LandingPage() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-3 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all cursor-default">
             <Sparkles className="text-primary w-6 h-6" />
-            <span className="text-2xl font-black tracking-tighter">Nashid</span>
+            <span className="text-2xl font-black tracking-tighter">Aura</span>
           </div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-            © {new Date().getFullYear()} Nashid Habit Studio. Built for the intentional.
+            © {new Date().getFullYear()} Aura Habit Studio. Built for the intentional.
           </p>
           <div className="flex gap-8">
             {['Privacy', 'Terms', 'Ascension'].map(item => (
@@ -305,8 +307,8 @@ function FeatureCard({ icon, title, description, delay }) {
       whileHover={{ y: -10 }}
       className="group"
     >
-      <Card className="h-full p-8 md:p-10 bg-card/40 backdrop-blur-3xl border-border/10 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
-        <div className="mb-8 p-4 rounded-2xl bg-white/5 border border-white/10 w-fit group-hover:bg-primary/10 group-hover:border-primary/20 transition-all duration-500">
+      <Card className="h-full p-8 md:p-10 glass-panel hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
+        <div className="mb-8 p-4 rounded-2xl bg-secondary border border-border/50 w-fit group-hover:bg-primary/10 group-hover:border-primary/20 transition-all duration-500">
           {icon}
         </div>
         <h3 className="text-2xl font-black tracking-tight mb-4 text-foreground group-hover:text-primary transition-colors">{title}</h3>
