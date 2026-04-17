@@ -28,6 +28,7 @@ import { useAuth } from '../../app/providers/AuthContext';
 import { HabitDialog } from '../../entities/habit/ui/HabitDialog';
 import { AiCoachPanel } from './AiCoachPanel';
 import { useHabitActions } from '../../app/providers/DashboardContext';
+import { pageTransition, SPRING_TIGHT } from '../lib/utils/animations';
 
 const navItems = [
   { label: 'Today', value: '/app/today', icon: Calendar },
@@ -37,8 +38,6 @@ const navItems = [
   { label: 'Achievements', value: '/app/achievements', icon: Trophy },
   { label: 'Vault', value: '/app/vault', icon: Archive },
 ];
-
-const springTransition = { type: "spring", stiffness: 400, damping: 30 };
 
 function SyncStatus() {
   const isFetching = useIsFetching();
@@ -105,20 +104,20 @@ export function AppShell() {
   return (
     <div className="min-h-screen bg-background text-foreground relative flex overflow-hidden font-sans selection:bg-primary/20">
       
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-72 fixed top-0 left-0 bottom-0 glass-panel border-r border-border z-50 p-6">
+      {/* Desktop Sidebar - Apple Inspired Focus Mode */}
+      <aside className="hidden lg:flex flex-col w-72 sticky top-0 h-screen bg-background border-r border-border/50 z-50 p-6 transition-all duration-700">
         <div className="flex flex-col h-full gap-8">
           {/* Brand */}
-          <Link to="/" className="flex items-center gap-3 px-2 group">
-            <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
-              <Command className="w-6 h-6" />
+          <Link to="/" className="flex items-center gap-3 px-3 group">
+            <div className="p-2 rounded-xl bg-primary/10 border border-primary/20 group-hover:scale-110 transition-transform">
+              <Command className="w-6 h-6 text-primary" />
             </div>
-            <span className="text-2xl font-semibold tracking-tight">Aura</span>
+            <span className="text-2xl font-black tracking-tighter">Aura</span>
           </Link>
 
           {/* Navigation */}
-          <nav className="flex flex-col gap-1">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-2 ml-3">Menu</p>
+          <nav className="flex flex-col gap-1 group/nav">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50 mb-4 ml-3">Ecosystem</p>
             {navItems.map((item) => {
               const active = currentNav === item.value;
               const Icon = item.icon;
@@ -127,22 +126,20 @@ export function AppShell() {
                   key={item.value}
                   to={item.value}
                   className={cn(
-                    "flex items-center gap-3 py-2.5 px-3 rounded-xl text-sm font-medium transition-all relative group",
+                    "flex items-center gap-3 py-3 px-4 rounded-2xl text-sm font-bold transition-all relative group/item",
                     active 
-                      ? "text-primary bg-secondary/50" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+                      ? "text-primary bg-primary/5" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 group-hover/nav:opacity-40 hover:!opacity-100"
                   )}
                 >
                   {active && (
                     <motion.div 
                       layoutId="sidebar-active-pill"
-                      className="absolute inset-0 bg-secondary/50 rounded-xl"
-                      transition={springTransition}
+                      className="absolute inset-0 bg-primary/5 rounded-2xl border border-primary/10"
+                      transition={SPRING_TIGHT}
                     />
                   )}
-                  <div className="relative z-10">
-                    <Icon className="w-4.5 h-4.5" />
-                  </div>
+                  <Icon className={cn("w-5 h-5 relative z-10 transition-transform group-hover/item:scale-110", active && "text-primary")} />
                   <span className="relative z-10">{item.label}</span>
                 </Link>
               );
@@ -150,14 +147,14 @@ export function AppShell() {
           </nav>
 
           {/* User Profile */}
-          <div className="mt-auto p-4 rounded-2xl bg-secondary/30 border border-border/50">
+          <div className="mt-auto p-4 rounded-[1.5rem] bg-secondary/30 border border-border/50 backdrop-blur-sm transition-opacity group-hover/nav:opacity-40 hover:!opacity-100">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-sm shadow-lg shadow-primary/20">
                 {user?.name?.[0]?.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{user?.name}</p>
-                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">Personal Workspace</p>
+                <p className="text-sm font-bold truncate">{user?.name}</p>
+                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest opacity-60">Level {user?.identity?.level || 1}</p>
               </div>
               <button 
                 onClick={logout}
@@ -172,73 +169,70 @@ export function AppShell() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 lg:pl-72 pb-24 lg:pb-0 min-h-screen flex flex-col relative z-10">
-        
+      <main className="flex-1 h-screen flex flex-col min-w-0 bg-background overflow-hidden relative">
         {/* Desktop Header */}
         <header className={cn(
-          "hidden lg:flex h-16 items-center justify-between px-8 sticky top-0 z-40 transition-all",
+          "hidden lg:flex items-center justify-between px-8 py-4 sticky top-0 z-40 transition-all duration-500",
           scrolled ? "glass-panel border-b border-border shadow-sm" : "bg-transparent"
         )}>
-          <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-secondary/50 border border-border w-96 focus-within:bg-secondary/80 focus-within:ring-2 focus-within:ring-primary/20 transition-all group">
-            <Search className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-secondary/50 border border-border w-96 focus-within:bg-secondary/80 focus-within:ring-2 focus-within:ring-primary/10 transition-all group shadow-sm">
+            <Search className="w-4.5 h-4.5 text-muted-foreground/60" />
             <input 
               type="text"
-              placeholder="Search..." 
-              className="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-muted-foreground text-foreground outline-none"
+              placeholder="Search rituals, entries..." 
+              className="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-muted-foreground/40 text-foreground outline-none font-medium"
             />
-            <kbd className="hidden group-focus-within:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border bg-background text-[10px] font-medium text-muted-foreground">
+            <kbd className="hidden group-focus-within:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border border-border/50 bg-background text-[10px] font-bold text-muted-foreground/60">
               Esc
             </kbd>
           </div>
 
           <div className="flex items-center gap-4">
             <SyncStatus />
-            <div className="h-6 w-px bg-border" />
+            <div className="h-6 w-px bg-border/50" />
             <Button 
               variant="outline"
               size="icon"
-              className="rounded-xl"
+              className="rounded-2xl h-11 w-11 hover:scale-105 transition-transform"
               aria-label="Notifications"
             >
-              <Bell className="w-4.5 h-4.5" />
+              <Bell className="w-5 h-5" />
             </Button>
-            <div className="h-6 w-px bg-border" />
+            <div className="h-6 w-px bg-border/50" />
             <Button 
               onClick={() => { setEditingHabit(null); setDialogOpen(true); }}
-              className="rounded-xl px-5 h-10 font-semibold text-sm shadow-sm"
+              className="rounded-2xl px-6 h-11 font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              New Entry
+              <Plus className="w-4.5 h-4.5 mr-2 stroke-[3px]" />
+              New Ritual
             </Button>
           </div>
         </header>
 
         {/* Mobile Header */}
-        <header className="lg:hidden flex justify-between items-center px-6 py-4 bg-background/80 backdrop-blur-xl sticky top-0 z-40 border-b border-border">
+        <header className="lg:hidden flex justify-between items-center px-6 py-4 bg-background/80 backdrop-blur-xl sticky top-0 z-40 border-b border-border/50">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <Command className="w-5 h-5 text-primary" />
-              <span className="text-xl font-bold tracking-tight">Aura</span>
+              <span className="text-xl font-black tracking-tighter">Aura</span>
             </div>
             <SyncStatus />
           </div>
           <button 
             onClick={() => setMobileMenuOpen(true)}
-            className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shadow-sm"
+            className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shadow-lg shadow-primary/20 active:scale-90 transition-transform"
           >
             {user?.name?.[0]?.toUpperCase()}
           </button>
         </header>
 
         {/* Content Canvas */}
-        <div className="flex-1 p-page-x max-w-7xl mx-auto w-full relative">
-          <AnimatePresence mode="wait">
+        <div className="flex-1 p-page-x max-w-7xl mx-auto w-full relative overflow-y-auto hide-scrollbar">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={springTransition}
+              {...pageTransition}
+              className="w-full min-h-full pb-32 lg:pb-12"
             >
               <Outlet
                 context={{
@@ -253,7 +247,7 @@ export function AppShell() {
 
       {/* Mobile Tab Bar */}
       <nav className="fixed bottom-6 left-6 right-6 lg:hidden z-50">
-        <div className="h-16 rounded-2xl bg-card/70 backdrop-blur-2xl border border-border flex items-center justify-around px-2 shadow-lg">
+        <div className="h-16 rounded-2xl bg-card/70 backdrop-blur-2xl border border-border/50 flex items-center justify-around px-2 shadow-xl">
           {navItems.slice(0, 5).map((item) => {
             const active = currentNav === item.value;
             const Icon = item.icon;
@@ -270,7 +264,7 @@ export function AppShell() {
                   <motion.div 
                     layoutId="mobile-nav-pill"
                     className="absolute inset-0 bg-primary/10 rounded-xl"
-                    transition={springTransition}
+                    transition={SPRING_TIGHT}
                   />
                 )}
                 <Icon className="w-5 h-5 relative z-10" />
@@ -300,56 +294,74 @@ export function AppShell() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] lg:hidden"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] lg:hidden"
             />
-            <motion.div 
+            <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={springTransition}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-card z-[101] p-8 shadow-2xl border-l border-border lg:hidden flex flex-col"
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 right-0 w-80 bg-background border-l border-border shadow-2xl z-[101] p-8 flex flex-col lg:hidden"
             >
-              <div className="flex justify-between items-center mb-8">
+              <div className="flex justify-between items-center mb-12">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-primary/10">
-                    <Compass className="w-5 h-5 text-primary" />
+                  <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">
+                    <Command className="w-6 h-6 text-primary" />
                   </div>
-                  <span className="text-lg font-bold">Settings</span>
+                  <span className="text-2xl font-black tracking-tighter">Aura</span>
                 </div>
                 <button 
-                  onClick={() => setMobileMenuOpen(false)} 
+                  onClick={() => setMobileMenuOpen(false)}
                   className="p-2 hover:bg-secondary rounded-xl transition-colors"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 
-              <Card className="flex flex-col items-center p-8 mb-8 border-none bg-secondary/30">
-                <div className="w-20 h-20 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center text-3xl font-bold mb-4 shadow-md">
-                  {user?.name?.[0]?.toUpperCase()}
-                </div>
-                <h3 className="font-bold text-xl">{user?.name}</h3>
-                <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1">Free Tier</p>
-              </Card>
+              <nav className="flex-1 flex flex-col gap-2">
+                {navItems.map((item) => {
+                  const active = currentNav === item.value;
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.value}
+                      to={item.value}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-4 py-4 px-5 rounded-2xl text-lg font-bold transition-all",
+                        active 
+                          ? "text-primary bg-primary/10 border border-primary/20" 
+                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                      )}
+                    >
+                      <Icon className="w-6 h-6" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
 
-              <div className="space-y-3">
-                 <Button 
-                  variant="destructive"
-                  onClick={() => { logout(); setMobileMenuOpen(false); }}
-                  className="w-full rounded-xl h-12 font-bold uppercase tracking-wider text-[10px]"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
-              </div>
-              
-              <div className="mt-auto pt-8 border-t border-border">
-                <div className="flex justify-center gap-6 mb-4">
-                  <Link to="#" className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors">Privacy</Link>
-                  <Link to="#" className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors">Terms</Link>
+              <div className="pt-8 border-t border-border/50">
+                <div className="flex items-center gap-4 mb-8 p-4 rounded-2xl bg-secondary/30 border border-border/50">
+                  <div className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-lg">
+                    {user?.name?.[0]?.toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-bold text-foreground">{user?.name}</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+                      Level {user?.identity?.level || 1} • {user?.identity?.archetype || 'Initiate'}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-center text-muted-foreground text-[10px] font-medium opacity-50 uppercase tracking-[0.2em]">
-                  Aura v1.0.0
+                <button 
+                  onClick={() => { logout(); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-4 py-4 px-5 rounded-2xl text-lg font-bold text-destructive hover:bg-destructive/10 transition-all group"
+                >
+                  <LogOut className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
+                  <span>Sign Out</span>
+                </button>
+                <p className="text-center mt-12 text-[10px] font-medium opacity-50 uppercase tracking-[0.2em]">
+                  Aura v2.0.0
                 </p>
               </div>
             </motion.div>

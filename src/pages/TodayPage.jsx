@@ -10,8 +10,6 @@ import {
   ChevronRight
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { api } from '../shared/api/client';
-import { useDashboardData, useHabitActions } from '../app/providers/DashboardContext';
 import { TodayHabitCard } from '../entities/habit/ui/TodayHabitCard';
 import { ShieldNudgeCard } from '../shared/ui/ShieldNudgeCard';
 import { MutationCard } from '../shared/ui/MutationCard';
@@ -21,86 +19,43 @@ import { useMutationsQuery, useFuseMutation, useEvolutionMutation } from '../sha
 import { useAuth } from '../app/providers/AuthContext';
 import { cn } from '../shared/lib/utils/cn';
 import { Button } from '../shared/ui/core/Button';
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 20 } },
-};
+import { useDashboardData, useHabitActions } from '../app/providers/DashboardContext';
+import { staggerContainer, fadeSlideUp, SPRING_BOUNCY, EASE_CUSTOM } from '../shared/lib/utils/animations';
 
 export function TodayPage() {
   const { user } = useAuth();
   const { dashboard, loading, error, refresh } = useDashboardData();
   const { toggleHabit, logProgress, skipHabit, dismissBadge, newBadge } = useHabitActions();
   const { openNewHabit, editHabit } = useOutletContext();
+  
+  const { data: mutationSugs = [] } = useMutationsQuery(user?.id);
+  const fuseMutation = useFuseMutation();
+  const evolutionMutation = useEvolutionMutation();
+
   const [templateOpen, setTemplateOpen] = useState(false);
   const [routineOpen, setRoutineOpen] = useState(false);
   const [routineContent, setRoutineContent] = useState('');
   const [routineLoading, setRoutineLoading] = useState(false);
-  const hasHabits = dashboard.habits.length > 0;
 
-  const { data: mutations = [] } = useMutationsQuery(user?.id);
-  const fuseMutation = useFuseMutation();
-  const evolutionMutation = useEvolutionMutation();
-
-  const handleAcceptMutation = (suggestion) => {
-    if (suggestion.type === 'habit_stack') {
-      fuseMutation.mutate({ habitAId: suggestion.habitAId, habitBId: suggestion.habitBId });
-    } else {
-      evolutionMutation.mutate({ habitId: suggestion.habitId, status: 'accepted' });
-    }
-  };
-
-  const handleDismissMutation = (suggestion) => {
-    if (suggestion.type !== 'habit_stack') {
-      evolutionMutation.mutate({ habitId: suggestion.habitId, status: 'dismissed' });
-    }
-  };
-
-  const handleGenerateRoutine = async () => {
-    setRoutineOpen(true);
-    setRoutineLoading(true);
-    try {
-      const { data } = await api.post('/ai/routine');
-      setRoutineContent(data.routine);
-    } catch (err) {
-      setRoutineContent("Unable to generate your routine at this time.");
-    } finally {
-      setRoutineLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
-        <div className="h-20 w-48 bg-muted animate-pulse rounded-2xl" />
-        <div className="space-y-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-32 bg-muted animate-pulse rounded-[2rem]" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
+  const hasHabits = dashboard.habits?.length > 0;
   const currentDate = new Date().toLocaleDateString('en-US', { 
     weekday: 'long', 
     month: 'long', 
     day: 'numeric' 
   });
 
+  if (loading && !dashboard.habits?.length) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-12 h-12 text-primary animate-spin opacity-40" />
+        <p className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Aligning Aura...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background text-foreground pb-32">
-      <div className="max-w-4xl mx-auto pt-page-t">
+    <div className="pb-32">
+      <div className="max-w-4xl mx-auto pt-page-t px-page-x">
         {error && (
           <div className="mb-8 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -112,85 +67,98 @@ export function TodayPage() {
         )}
 
         {/* Massive Typography Header */}
-        <header className="mb-12">
-          <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-1">{currentDate}</p>
+        <motion.header 
+          variants={fadeSlideUp}
+          initial="hidden"
+          animate="show"
+          className="mb-16"
+        >
+          <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em] mb-3 opacity-70">{currentDate}</p>
           <div className="flex items-baseline justify-between">
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight">Today</h1>
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.8] text-foreground">Today</h1>
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full h-12 w-12" 
+              className="rounded-2xl h-12 w-12 hover:bg-secondary/50" 
               onClick={() => setTemplateOpen(true)}
               aria-label="Habit Templates"
             >
               <Settings2 className="w-6 h-6" />
             </Button>
           </div>
-        </header>
+        </motion.header>
 
-        <motion.div 
-          variants={containerVariants}
+        <motion.div
+          variants={staggerContainer}
           initial="hidden"
           animate="show"
-          className="space-y-12"
+          className="space-y-16"
         >
           {/* Summary Section */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <motion.div variants={itemVariants} className="flex flex-col justify-center">
-              <h2 className="text-2xl font-bold text-muted-foreground mb-2">Summary</h2>
-              <p className="text-lg font-medium leading-relaxed">
-                {dashboard.summary.completedToday === dashboard.summary.totalHabits && dashboard.summary.totalHabits > 0
-                  ? "You've completed all your rituals for today. Excellent work."
-                  : `You have ${dashboard.summary.totalHabits - dashboard.summary.completedToday} rituals remaining to reach your goal.`}
-              </p>
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <motion.div variants={fadeSlideUp} className="flex flex-col justify-center">
+              <h2 className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">Current Momentum</h2>
+              <div className="space-y-2">
+                <div className="text-5xl font-black tracking-tighter">
+                  {dashboard.summary?.completedToday || 0} / {dashboard.summary?.totalHabits || 0}
+                </div>
+                <p className="text-lg font-medium text-muted-foreground">Rituals honored today.</p>
+              </div>
             </motion.div>
-            
-            <motion.div variants={itemVariants} className="flex gap-4 items-center justify-end">
-              <Button size="lg" className="rounded-full px-8 py-6 text-lg h-auto" onClick={openNewHabit}>
-                <Plus className="mr-2 h-6 w-6" strokeWidth={3} />
-                Add Habit
-              </Button>
-              <Button variant="secondary" size="lg" className="rounded-full px-8 py-6 text-lg h-auto" onClick={handleGenerateRoutine}>
-                <Wand2 className="mr-2 h-6 w-6" />
-                AI Plan
-              </Button>
+
+            <motion.div variants={fadeSlideUp}>
+              <ShieldNudgeCard risks={dashboard.tomorrowRisks} />
             </motion.div>
           </section>
 
-          {/* Intelligence Alerts (Only if present) */}
-          {(mutations.length > 0 || dashboard.tomorrowRisks?.length > 0) && (
-            <section className="space-y-4">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-2">Intelligence</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {mutations.length > 0 && (
-                  <MutationCard 
-                    suggestion={mutations[0]} 
-                    onAccept={() => handleAcceptMutation(mutations[0])}
-                    onDismiss={() => handleDismissMutation(mutations[0])}
-                  />
-                )}
-                <ShieldNudgeCard tomorrowRisks={dashboard.tomorrowRisks} />
-              </div>
-            </section>
-          )}
+          {/* AI Intelligence Layer */}
+          <AnimatePresence>
+            {(mutationSugs.length > 0 || dashboard.habits?.some(h => h.autoScaling)) && (
+              <motion.section 
+                variants={fadeSlideUp}
+                className="space-y-6"
+              >
+                <div className="flex items-center gap-3 px-2">
+                  <Wand2 size={18} className="text-primary" />
+                  <h3 className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em]">Neural Suggestions</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <AutoScalingCard />
+                  {mutationSugs.map((sug) => (
+                    <MutationCard 
+                      key={sug.id} 
+                      suggestion={sug} 
+                      onAction={async (id, action) => {
+                        if (action === 'fuse') await fuseMutation.mutateAsync({ habitAId: sug.habitAId, habitBId: sug.habitBId });
+                        else await evolutionMutation.mutateAsync({ habitId: sug.habitId, status: action });
+                      }}
+                    />
+                  ))}
+                </div>
+              </motion.section>
+            )}
+          </AnimatePresence>
 
-          {/* Habits List */}
-          <section className="space-y-6">
+          {/* Habits Section */}
+          <section className="space-y-8">
             <div className="flex items-center justify-between px-2">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Rituals</h3>
+              <h3 className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em]">Active Rituals</h3>
+              <Button variant="ghost" size="sm" className="rounded-xl font-bold text-primary" onClick={openNewHabit}>
+                <Plus size={16} className="mr-1" /> Add Ritual
+              </Button>
             </div>
 
             {hasHabits ? (
-              <motion.div layout="position" className="grid grid-cols-1 gap-4">
-                <AnimatePresence mode="popLayout">
+              <motion.div layout="position" className="grid grid-cols-1 gap-6">
+                <AnimatePresence mode="popLayout" initial={false}>
                   {dashboard.habits.map((habit) => (
                     <motion.div
                       key={habit._id}
+                      layoutId={`habit-card-${habit._id}`}
+                      variants={fadeSlideUp}
                       layout="position"
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                      className="origin-top"
                     >
                       <TodayHabitCard
                         habit={habit}
@@ -204,101 +172,47 @@ export function TodayPage() {
                 </AnimatePresence>
               </motion.div>
             ) : (
-              <div className="p-12 text-center rounded-[2.5rem] bg-secondary/20 border-2 border-dashed border-border/50">
-                <h4 className="text-xl font-bold mb-2">No active habits</h4>
-                <p className="text-muted-foreground mb-6">Start your journey by defining your first behavioral commitment.</p>
-                <Button onClick={openNewHabit} className="rounded-full">Get Started</Button>
-              </div>
+              <motion.div 
+                variants={fadeSlideUp}
+                className="p-16 rounded-[3rem] bg-secondary/30 border border-dashed border-border/50 flex flex-col items-center text-center"
+              >
+                <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mb-8">
+                  <Plus className="w-10 h-10 text-primary opacity-40" />
+                </div>
+                <h4 className="text-2xl font-bold tracking-tight mb-2 text-foreground">Forge your first ritual</h4>
+                <p className="text-muted-foreground mb-8 max-w-sm">Your journey to intentional living begins with a single commitment.</p>
+                <Button onClick={openNewHabit} className="rounded-2xl h-14 px-10 shadow-xl shadow-primary/20">Get Started</Button>
+              </motion.div>
             )}
-          </section>
-
-          {/* Additional Insights */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t">
-            <AutoScalingCard />
-            <div className="p-8 rounded-[2rem] bg-secondary/30 flex flex-col justify-between">
-              <div>
-                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Weekly Progress</h4>
-                <div className="text-4xl font-black mb-2">{Math.round(dashboard.summary.weeklyCompletion)}%</div>
-              </div>
-              <div className="h-2 w-full bg-primary/10 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${dashboard.summary.weeklyCompletion}%` }}
-                  className="h-full bg-primary rounded-full" 
-                />
-              </div>
-            </div>
           </section>
         </motion.div>
       </div>
 
       <TemplateDrawer open={templateOpen} onClose={() => setTemplateOpen(false)} />
 
-      {/* Routine Dialog */}
-      <AnimatePresence>
-        {routineOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setRoutineOpen(false)}
-              className="absolute inset-0 bg-background/80 backdrop-blur-md"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto p-10 rounded-[3rem] bg-card border shadow-2xl"
-            >
-              {routineLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-6">
-                  <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                  <p className="text-xl font-bold text-muted-foreground animate-pulse">Architecting your day...</p>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-8">
-                  <div className="prose prose-slate max-w-none 
-                    prose-h1:text-4xl prose-h1:font-black prose-h1:tracking-tight
-                    prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8
-                    prose-p:text-lg prose-p:text-muted-foreground prose-p:leading-relaxed
-                  ">
-                    <ReactMarkdown>{routineContent}</ReactMarkdown>
-                  </div>
-                  <Button size="lg" className="w-full rounded-2xl h-16 text-xl font-bold" onClick={() => setRoutineOpen(false)}>
-                    Adopt Strategy
-                  </Button>
-                </div>
-              )}
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Badge Celebration */}
+      {/* Modern Badge Notification */}
       <AnimatePresence>
         {newBadge && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-background/80 backdrop-blur-md">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-background/95 backdrop-blur-2xl"
-            />
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              className="relative text-center p-12 max-w-lg"
+              initial={{ scale: 0.8, opacity: 0, y: 40 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 40 }}
+              transition={SPRING_BOUNCY}
+              className="max-w-sm w-full bg-card p-10 rounded-[3rem] border border-border shadow-2xl text-center relative overflow-hidden"
             >
-              <div className="text-[10rem] mb-8 leading-none">{newBadge.emoji}</div>
-              <h3 className="text-5xl font-black mb-4 tracking-tight">{newBadge.label}</h3>
-              <p className="text-xl text-muted-foreground mb-12 leading-relaxed">
-                {newBadge.desc}
-              </p>
-              <Button size="lg" className="w-full rounded-2xl h-16 text-xl font-bold" onClick={dismissBadge}>
-                Continue
-              </Button>
+              <div className="absolute inset-0 bg-primary/5 pointer-events-none" />
+              <div className="relative z-10">
+                <div className="text-8xl mb-8 transform hover:scale-110 transition-transform cursor-default select-none drop-shadow-2xl">
+                  {newBadge.emoji || '🏆'}
+                </div>
+                <h2 className="text-3xl font-black tracking-tighter mb-2 text-foreground">Metamorphosis!</h2>
+                <p className="text-lg font-bold text-primary mb-6 uppercase tracking-widest">{newBadge.label}</p>
+                <p className="text-muted-foreground font-medium mb-10 leading-relaxed">{newBadge.desc}</p>
+                <Button size="lg" className="w-full rounded-2xl h-16 text-xl font-bold shadow-xl shadow-primary/20" onClick={dismissBadge}>
+                  Continue
+                </Button>
+              </div>
             </motion.div>
           </div>
         )}
