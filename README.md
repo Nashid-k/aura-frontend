@@ -1,63 +1,73 @@
-<!-- ══════════════════════════════════════════════════════════════════ -->
-<!--                     NASHID K  —  PROJECT METRICS                   -->
-<!-- ══════════════════════════════════════════════════════════════════ -->
+# Aura — Habit & Personal Growth App (Frontend)
 
-# 🚀 aura-frontend
+Aura is a React single-page application for habit building and personal growth. It pairs a daily habit workflow with progress insights, identity reflections, journaling, reminders and an AI-coach experience.
 
-<p align="center">
-  ![](https://img.shields.io/badge/React-18.x-61DAFB?style=flat-square&logo=react) ![](https://img.shields.io/badge/TailwindCSS-3.x-38B2AC?style=flat-square&logo=tailwindcss) 
-</p>
+## Product areas
 
-<p align="center">
-  <strong>A modern web application built with JavaScript.</strong>
-</p>
+- **Today:** daily habit checklist and routines
+- **Progress:** habit trends, progress summaries and heatmaps
+- **Habit details:** individual habit history and statistics
+- **Identity:** identity-oriented goals and reflections
+- **Journal:** daily journaling
+- **Reminders:** reminder management
+- **Vault:** saved items and personal resources
+- **Achievements:** milestone and reward views
+- **AI coach:** conversational support and habit context
 
----
+## Current stack
 
-## 📌 Project Overview
-This repository contains **aura-frontend**, engineered with modern design standards, modular structures, and clean coding architectures.
+- React 19
+- Vite 6
+- React Router 7
+- Tailwind CSS 4 with the Vite plugin
+- TanStack Query
+- Axios
+- Framer Motion
+- Radix UI primitives
+- React Markdown
 
-### ✨ Core Features
-*   **Tailwind CSS:** Fully responsive mobile-first styling layout.
+## Architecture
 
----
-
-## 📂 Project Architecture
+The frontend is organized around application providers, page-level routes, domain entities and shared UI/utilities.
 
 ```text
 src/
-├── components/   # UI presentation elements
-├── config/       # Environment setup and server configurations
-├── routes/       # REST API endpoints
-└── App.js        # Core mounting file
+├── app/                 # Auth, dashboard and theme providers; route guards
+├── entities/            # Habit and sigil UI entities
+├── pages/               # Today, progress, journal, identity and other pages
+└── shared/
+    ├── api/              # Axios client
+    ├── lib/              # Query hooks and utilities
+    └── ui/               # Shared components and application shell
 ```
 
----
+## Run locally
 
-## ⚙️ Local Development Setup
+```bash
+git clone https://github.com/Nashid-k/aura-frontend.git
+cd aura-frontend
+npm install
+cp .env.example .env
+npm run dev
+```
 
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/Nashid-k/aura-frontend.git
-   cd aura-frontend
-   ```
+Open the Vite URL printed in the terminal (normally [http://localhost:5173](http://localhost:5173)).
 
-2. **Install Dependencies:**
-   ```bash
-   npm install
-   ```
+## Environment
 
-3. **Configure Environment:**
-   *(If applicable, copy the `.env.example` file to `.env` and fill in variables)*
+| Variable | Purpose |
+| --- | --- |
+| `VITE_API_URL` | API base URL. Leave empty for local Vite proxying; set the deployed API base URL for production. |
 
-4. **Start local dev server:**
-   ```bash
-   npm run dev
-   ```
+Vite exposes `VITE_*` variables in browser code. Do not place private credentials in this variable.
 
----
+## Scripts
 
-## 🛡️ Security & Best Practices Implemented
-*   **Strict Separations:** Modular separation between config, logic, and view components.
-*   **Environment Configuration:** Secure variables kept out of repository scopes via dotenv.
-*   **Git Standards:** Maintained clean histories and semantic commit protocols.
+- `npm run dev` — start Vite
+- `npm run build` — create production assets
+- `npm run preview` — preview the production build
+- `npm run lint` — run ESLint
+
+## Related repository
+
+[Aura backend](https://github.com/Nashid-k/aura-backend) provides authentication, habit, journal, mood, dashboard, AI and insights APIs.
